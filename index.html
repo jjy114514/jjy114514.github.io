@@ -276,19 +276,32 @@ const VIDEO_BASE_URL = "https://media.haiyidawangzifan.xyz";
 
 // 2) 把你所有 mp4 文件名（不带 .mp4）填到这里，约 40 个
 //    例：对象是 m1Excel.mp4，就填 "m1Excel"
-const VIDEO_KEYS = [
-  // --- 示例（把这几行替换成你真实的 40 个） ---
-  // "m1demo",
-  // "m2demo",
-  // "m3demo",
-  // "m4demo",
-  // "m5demo",
-  // "m6demo",
-  // "m7demo",
-  // "m8demo",
-  // "m9demo"
-  "Shape of Dreams 2025-10-04 12-55-04"
+  const VIDEO_KEYS = [
+  "m10恋曲1990",
+  "m11天下有情人",
+  "m1雨一直下",
+  "m2月亮惹的祸",
+  "m3春天里",
+  "m4大约在冬季",
+  "m5守望先锋精彩集锦",
+  "m6刀剑如梦",
+  "m7炉石传说精彩集锦",
+  "m8风雨无阻",
+  "m9黄昏"
 ];
+// const VIDEO_KEYS = [
+//   // --- 示例（把这几行替换成你真实的 40 个） ---
+//   "m1demo",
+//   "m2demo",
+//   "m3demo",
+//   "m4demo",
+//   "m5demo",
+//   "m6demo",
+//   "m7demo",
+//   "m8demo",
+//   "m9demo"
+
+// ];
 
 // 3) 每页显示 8 个（2行4列）
 const PAGE_SIZE = 8;
@@ -437,7 +450,7 @@ function renderHome(){
         <video class="thumb" muted playsinline preload="metadata" src="${v.url}#t=0.1"></video>
         <div class="tileMeta">
           <div>
-            <div class="tileTitle">${v.title}</div>
+            <div class="tileTitle">${v.subtitle}</div>
             <div class="tileSub">${v.keyword ? v.keyword : "（无关键词）"}</div>
           </div>
           <div class="chip">m${v.num}</div>
@@ -511,7 +524,7 @@ function renderVideo(){
     return;
   }
 
-  videoTitle.textContent = `子标题${v.id}`;
+  videoTitle.textContent = `子标题${v.subtitle}`;
   descBox.textContent = v.desc;
 
   playerSource.src = v.url;
