@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ddos没老冯</title>
+  <title>欢迎光临</title>
   <style>
     :root{
       --bg:#0b1220;
@@ -437,17 +437,17 @@ function renderHome(){
   grid.innerHTML = "";
   if(pageItems.length === 0){
     // 不显示任何 tile；如果你想更友好可取消注释：
-    // grid.innerHTML = `<div class="empty">未找到匹配视频</div>`;
+     grid.innerHTML = `<div class="empty">未找到匹配视频</div>`;
   } else {
     for(const v of pageItems){
       const a = document.createElement("a");
       a.className = "tile";
       a.href = `?v=${encodeURIComponent(v.id)}`;
 
-      // 用 video 的首帧做缩略（#t=0.1 防止黑屏；preload=metadata 降低流量）
+      // 用 video 的首帧做缩略（#t=1.5 防止黑屏；preload=metadata 降低流量）
       // 如果你有独立封面图，也可以改成 <img src="...">
       a.innerHTML = `
-        <video class="thumb" muted playsinline preload="metadata" src="${v.url}#t=0.1"></video>
+        <video class="thumb" muted playsinline preload="metadata" src="${v.url}#t=1.5"></video>
         <div class="tileMeta">
           <div>
             <div class="tileTitle">${v.subtitle}</div>
@@ -516,7 +516,7 @@ function renderVideo(){
   const v = VIDEOS.find(x => x.id === vid);
 
   if(!v){
-    videoTitle.textContent = "子标题（未找到视频）";
+    videoTitle.textContent = "（未找到视频）";
     descBox.textContent = "未找到该视频，请返回主页。";
     playerSource.src = "";
     player.load();
@@ -524,13 +524,13 @@ function renderVideo(){
     return;
   }
 
-  videoTitle.textContent = `子标题${v.subtitle}`;
+  videoTitle.textContent = `${v.subtitle}`;
   descBox.textContent = v.desc;
 
   playerSource.src = v.url;
   player.load();
 
-  playerNote.textContent = `视频源：${v.url}`;
+  // playerNote.textContent = `视频源：${v.url}`;
 
   loadGiscusForVideo(v.id);
 }
