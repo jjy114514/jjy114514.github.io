@@ -325,33 +325,20 @@ const GISCUS_CONFIG = {
  *  下面是逻辑代码（一般不用改）
  *  ======================= */
 
-function extractNumber(key){
-  const m = String(key).match(/^m(\d+)/i);
-  return m ? Number(m[1]) : 0;
-}
 
-// 忽略 m 后的数字前缀（m1/m2/... 不算关键词）
-function stripPrefix(key){
-  return String(key).replace(/^m\d+/i, "");
-}
+
 
 function buildVideoObject(key){
-  const num = extractNumber(key);
-  const kw = stripPrefix(key); // 关键词主体
   return {
     id: key,
-    num,
-    keyword: kw,
-    title: key,                  // 你也可以改成更友好的标题：`m${num}` 或其他
-    subtitle: kw ? kw : `m${num}`,
+    title: key,
+    subtitle: key,
     url: `${VIDEO_BASE_URL}/${key}.mp4`,
     desc: VIDEO_DESC[key] || `暂无简介（可在 VIDEO_DESC 里为 ${key} 添加）。`
   };
 }
 
-const VIDEOS = VIDEO_KEYS
-  .map(buildVideoObject)
-  .sort((a,b)=>a.num-b.num);
+const VIDEOS = VIDEO_KEYS.map(buildVideoObject);
 
 function qs(){
   return new URLSearchParams(location.search);
@@ -388,6 +375,14 @@ const descBox = document.getElementById("descBox");
 const commentsBox = document.getElementById("commentsBox");
 const playerNote = document.getElementById("playerNote");
 
+function stopPlayer(){
+  // 停止播放 + 断开音频/网络
+  player.pause();
+  player.currentTime = 0;
+  playerSource.src = "";
+  player.load();
+}
+
 function normalizeText(s){
   return String(s || "").trim().toLowerCase();
 }
@@ -396,10 +391,8 @@ function filterVideos(query){
   const q = normalizeText(query);
   if(!q) return VIDEOS;
 
-  // 只搜：去掉 m数字前缀后的 keyword + 原始 id（方便你直接输入 m12xxx 也能搜到）
   return VIDEOS.filter(v=>{
     const hay = [
-      v.keyword,
       v.id,
       v.subtitle,
       v.title
@@ -409,6 +402,7 @@ function filterVideos(query){
 }
 
 function renderHome(){
+  stopPlayer();   
   homeView.style.display = "";
   videoView.style.display = "none";
 
@@ -448,9 +442,8 @@ function renderHome(){
         <div class="tileMeta">
           <div>
             <div class="tileTitle">${v.subtitle}</div>
-            <div class="tileSub">${v.keyword ? v.keyword : "（无关键词）"}</div>
+           <div class="tileSub"></div>
           </div>
-          <div class="chip">m${v.num}</div>
         </div>
       `;
       grid.appendChild(a);
