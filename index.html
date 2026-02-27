@@ -276,17 +276,13 @@ const VIDEO_BASE_URL = "https://media.haiyidawangzifan.xyz";
 
 // 2) 把你所有 mp4 文件名（不带 .mp4）填到这里，约 40 个
 //    例：对象是 m1Excel.mp4，就填 "m1Excel"
-const VIDEO_KEYS = [
-  "“我没有什么不适的症状但是体检胃镜发现胃炎，需要治疗吗”？",
-  "吃粥养胃的说法真的具有科学性吗？",
+  const VIDEO_KEYS = [
   "腹泻一定要吃抗生素吗？",
   "急性阑尾炎是否必须急诊手术？",
-  "什么是病毒性肝炎",
   "什么是肠易激综合征",
   "什么是食管炎",
-  "什么是炎症性肠病",
+  "什么是炎症性肠胃病",
   "为什么得炎症性肠病的年轻人越来越多了？",
-  "压力大直接导致胃溃疡发生？哪些原因会导致胃溃疡？哪些人容易得？",
   "炎症性肠病（IBD）到底是‘身体免疫系统自己攻击自己’的病，还是‘会遗传’的病呢？",
   "胰腺癌是什么"
 ];
@@ -437,7 +433,11 @@ function renderHome(){
     for(const v of pageItems){
       const a = document.createElement("a");
       a.className = "tile";
-      a.href = `?v=${encodeURIComponent(v.id)}`;
+      const params = new URLSearchParams();
+	if (q) params.set("q", q);
+	params.set("page", String(curPage));
+	params.set("v", v.id);
+	a.href = `?${params.toString()}`;
 
       // 用 video 的首帧做缩略（#t=1.5 防止黑屏；preload=metadata 降低流量）
       // 如果你有独立封面图，也可以改成 <img src="...">
