@@ -407,7 +407,8 @@ function renderHome(){
   videoView.style.display = "none";
 
   const q = qs().get("q") || "";
-  const page = Number(qs().get("page") || "1");
+const pageRaw = Number(qs().get("page"));
+const page = Number.isFinite(pageRaw) ? pageRaw : 1;
 
   // 同步输入框
   if(searchInput.value !== q) searchInput.value = q;
@@ -433,11 +434,22 @@ function renderHome(){
     for(const v of pageItems){
       const a = document.createElement("a");
       a.className = "tile";
-      const params = new URLSearchParams();
-	if (q) params.set("q", q);
-	params.set("page", String(curPage));
-	params.set("v", v.id);
-	a.href = `?${params.toString()}`;
+const params = new URLSearchParams();
+if (q) params.set("q", q);
+params.set("page", String(curPage));
+params.set("v", v.id);
+
+// 生成正确的 ?q=...&page=...&v=...（不会出现 ?page=2?v=xxx 这种错误）
+a.href = `?${params.toString()}`;
+
+// 可选但强烈推荐：拦截点击，走 pushState，不整页刷新（更利于后面的自动播放）
+a.addEventListener("click", (e) => {
+  e.preventDefault();
+  setQuery({ v: v.id });   // 只改 v，q/page 会保留
+  router();
+});
+
+
 
       // 用 video 的首帧做缩略（#t=1.5 防止黑屏；preload=metadata 降低流量）
       // 如果你有独立封面图，也可以改成 <img src="...">
@@ -523,6 +535,8 @@ function renderVideo(){
 
   playerSource.src = v.url;
   player.load();
+const p = player.play();
+if (p && typeof p.catch === "function") p.catch(()=>{});
 
   // playerNote.textContent = `视频源：${v.url}`;
 
@@ -549,13 +563,15 @@ clearBtn.addEventListener("click", () => {
 });
 
 prevBtn.addEventListener("click", () => {
-  const page = Number(qs().get("page") || "1");
+  const pageRaw = Number(qs().get("page"));
+const page = Number.isFinite(pageRaw) ? pageRaw : 1;
   setQuery({ page: Math.max(1, page - 1), v: null });
   router();
 });
 
 nextBtn.addEventListener("click", () => {
-  const page = Number(qs().get("page") || "1");
+  const pageRaw = Number(qs().get("page"));
+const page = Number.isFinite(pageRaw) ? pageRaw : 1;
   setQuery({ page: page + 1, v: null });
   router();
 });
