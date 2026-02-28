@@ -468,7 +468,7 @@ a.addEventListener("click", (e) => {
       // 用 video 的首帧做缩略（#t=1.5 防止黑屏；preload=metadata 降低流量）
       // 如果你有独立封面图，也可以改成 <img src="...">
       a.innerHTML = `
-        <video class="thumb" muted playsinline preload="metadata" src="${v.url}#t=1.5"></video>
+        <video class="thumb" muted playsinline preload="metadata" src="${v.url}#t=8"></video>
         <div class="tileMeta">
           <div>
             <div class="tileTitle">${v.subtitle}</div>
