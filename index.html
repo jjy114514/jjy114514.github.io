@@ -562,6 +562,7 @@ function renderHome(){
       });
 
       // 这里引用初始化阶段生成的专属随机 t (8~50)
+// 这里引用初始化阶段生成的专属随机 t (8~50)
       a.innerHTML = `
         <video class="thumb" muted playsinline preload="metadata" src="${v.url}#t=${v.thumbTime}"></video>
         <div class="tileMeta">
@@ -572,6 +573,16 @@ function renderHome(){
         </div>
       `;
       grid.appendChild(a);
+
+      // --- 新增：时长超限保护机制 ---
+      const videoTag = a.querySelector(".thumb");
+      videoTag.addEventListener("loadedmetadata", function() {
+        // 如果成功获取到了视频总时长，且随机时间 >= 视频总时长
+        if (this.duration && v.thumbTime >= this.duration) {
+          // 强制将封面时间修改为该视频的中间位置（比如 30 秒的视频就取第 15 秒）
+          this.currentTime = Math.max(1, Math.floor(this.duration / 2));
+        }
+      });
     }
   }
 
