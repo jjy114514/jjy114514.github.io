@@ -40,6 +40,7 @@
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       backdrop-filter: blur(8px);
+      position: relative;
     }
 
     /* Home layout */
@@ -84,6 +85,8 @@
       display:grid;
       grid-template-columns: repeat(4, 1fr);
       gap:14px;
+      min-height: 400px; /* 确保列表较少时仍有基础高度 */
+      align-content: start;
     }
     @media (max-width: 980px){
       .grid{grid-template-columns: repeat(2, 1fr);}
@@ -111,7 +114,19 @@
       padding:10px 12px;
       display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
     }
-    .tileTitle{font-weight:650; font-size:13px}
+    
+    /* 固定了标题的高度，保证就算有的标题一行有的两行，卡片底部也严格对其，不会引起页面晃动 */
+    .tileTitle{
+      font-weight:650; 
+      font-size:13px; 
+      line-height:20px;
+      height: 40px; /* 20px * 2行 = 40px */
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     .tileSub{color:var(--muted); font-size:12px; margin-top:4px; line-height:1.25}
     .chip{
       font-size:11px;
@@ -124,13 +139,47 @@
       height:fit-content;
     }
 
+    /* 将分页区域吸底，固定在页面下方 */
     .pager{
       padding:12px 16px 16px;
       display:flex; align-items:center; justify-content:space-between; gap:10px;
       border-top:1px solid var(--line);
+      position: sticky;
+      bottom: 0;
+      background: rgba(17, 26, 46, 0.95); /* 使用半透明卡片色以便覆盖 */
+      backdrop-filter: blur(12px);
+      border-radius: 0 0 var(--radius) var(--radius);
+      z-index: 10;
     }
     .pagerLeft{display:flex; gap:10px; align-items:center;}
+    
+    /* 跳转页码的样式 */
+    .pagerRight {
+      display: flex; align-items: center; gap: 16px;
+      flex-wrap: wrap;
+    }
     .pageInfo{color:var(--muted); font-size:12px}
+    .jumpBox {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--muted);
+    }
+    .jumpInput {
+      width: 48px; padding: 6px 4px; border-radius: 8px;
+      background: rgba(0,0,0,.2); border: 1px solid var(--line);
+      color: var(--text); font-size: 13px; text-align: center; outline: none;
+    }
+    .jumpInput:focus { border-color: var(--accent); }
+    .jumpBtn {
+      border: 1px solid var(--line); background: rgba(0,0,0,.2);
+      color: var(--text); padding: 5px 12px; border-radius: 8px;
+      cursor: pointer; font-size: 12px;
+    }
+    .jumpBtn:hover { border-color: rgba(96,165,250,.5); }
+
+    @media (max-width: 600px){
+      .pager { flex-direction: column; }
+      .pagerRight { width: 100%; justify-content: space-between; }
+    }
 
     /* Video page */
     .videoHeader{
@@ -228,7 +277,13 @@
           <button class="btn" id="prevBtn">上一页</button>
           <button class="btn" id="nextBtn">下一页</button>
         </div>
-        <div class="pageInfo" id="pageInfo"></div>
+        <div class="pagerRight">
+          <div class="pageInfo" id="pageInfo"></div>
+          <div class="jumpBox">
+            前往 <input type="number" id="jumpInput" class="jumpInput" min="1" /> 页
+            <button class="jumpBtn" id="jumpBtn">跳转</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -256,7 +311,6 @@
 
           <div class="sideCard">
             <h3>访客留言</h3>
-            <!-- 静态站无法自行保存留言，这里用 Giscus（GitHub Discussions） -->
             <div id="commentsBox" class="desc" style="color:var(--muted);">
               正在加载留言区…
             </div>
@@ -270,12 +324,8 @@
 /** =======================
  *  你需要修改的配置
  *  ======================= */
-
-// 1) 你的 R2 自定义域名（不要以 / 结尾）
 const VIDEO_BASE_URL = "https://media.haiyidawangzifan.xyz";
 
-// 2) 把你所有 mp4 文件名（不带 .mp4）填到这里，约 40 个
-//    例：对象是 m1Excel.mp4，就填 "m1Excel"
 const VIDEO_KEYS =[
   "什么是炎症性肠病",
   "什么是肠易激综合征",
@@ -378,35 +428,15 @@ const VIDEO_KEYS =[
   "早期肠癌内镜下切除（ESD，EMR）后还会复发吗？免疫治疗（如PD-1抑制剂）对MSI-H型肠癌的效果如何？",
   "运动怎么对付癌症"
 ];
-// const VIDEO_KEYS = [
-//   // --- 示例（把这几行替换成你真实的 40 个） ---
-//   "m1demo",
-//   "m2demo",
-//   "m3demo",
-//   "m4demo",
-//   "m5demo",
-//   "m6demo",
-//   "m7demo",
-//   "m8demo",
-//   "m9demo"
 
-// ];
-
-// 3) 每页显示 8 个（2行4列）
 const PAGE_SIZE = 8;
 
-// 4) 可选：为某些视频写简介（不写就会显示默认占位）
 const VIDEO_DESC = {
-  // "m1demo": "这是 m1 的简介，支持多行。\n第二行也可以。",
   "m1demo": "这是 m1 的简介，支持多行。\n第二行也可以。"
-  // "m2demo": "这是 m2 的简介，支持多行。\n第二行也可以。"
 };
 
-// 5) Giscus 留言（需要你后续把 data-repo 等填成你的仓库）
-//    如果你暂时不想做留言，可以把 ENABLE_COMMENTS 设为 false
 const ENABLE_COMMENTS = true;
 const GISCUS_CONFIG = {
-  // 你需要把下面这些改成你自己的（按 giscus.app 配置页面生成）
   repo: "jjy114514/jjy114514.github.io",
   repoId: "R_kgDORHiRYQ",
   category: "Ideas",
@@ -417,16 +447,16 @@ const GISCUS_CONFIG = {
  *  下面是逻辑代码（一般不用改）
  *  ======================= */
 
-
-
-
 function buildVideoObject(key){
+  // 给每个视频初始化一个 8 到 50 之间的随机数，用于取不同时间点的封面
+  const randomT = Math.floor(Math.random() * (50 - 8 + 1)) + 8;
   return {
     id: key,
     title: key,
     subtitle: key,
     url: `${VIDEO_BASE_URL}/${key}.mp4`,
-    desc: VIDEO_DESC[key] || `暂无简介（可在 VIDEO_DESC 里为 ${key} 添加）。`
+    desc: VIDEO_DESC[key] || `暂无简介（可在 VIDEO_DESC 里为 ${key} 添加）。`,
+    thumbTime: randomT
   };
 }
 
@@ -458,6 +488,8 @@ const matchHint = document.getElementById("matchHint");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 const pageInfo = document.getElementById("pageInfo");
+const jumpInput = document.getElementById("jumpInput");
+const jumpBtn = document.getElementById("jumpBtn");
 
 const backBtn = document.getElementById("backBtn");
 const videoTitle = document.getElementById("videoTitle");
@@ -468,7 +500,6 @@ const commentsBox = document.getElementById("commentsBox");
 const playerNote = document.getElementById("playerNote");
 
 function stopPlayer(){
-  // 停止播放 + 断开音频/网络
   player.pause();
   player.currentTime = 0;
   playerSource.src = "";
@@ -484,11 +515,7 @@ function filterVideos(query){
   if(!q) return VIDEOS;
 
   return VIDEOS.filter(v=>{
-    const hay = [
-      v.id,
-      v.subtitle,
-      v.title
-    ].map(normalizeText).join(" ");
+    const hay = [v.id, v.subtitle, v.title].map(normalizeText).join(" ");
     return hay.includes(q);
   });
 }
@@ -499,10 +526,9 @@ function renderHome(){
   videoView.style.display = "none";
 
   const q = qs().get("q") || "";
-const pageRaw = Number(qs().get("page"));
-const page = Number.isFinite(pageRaw) ? pageRaw : 1;
+  const pageRaw = Number(qs().get("page"));
+  const page = Number.isFinite(pageRaw) ? pageRaw : 1;
 
-  // 同步输入框
   if(searchInput.value !== q) searchInput.value = q;
 
   const filtered = filterVideos(q);
@@ -510,47 +536,38 @@ const page = Number.isFinite(pageRaw) ? pageRaw : 1;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const curPage = clamp(page, 1, totalPages);
 
-  // hint（你说“不存在就什么也不显示”，所以这里轻提示不强制显示也行）
   matchHint.textContent = q ? `匹配：${total} 个` : `总计：${VIDEOS.length} 个`;
 
-  // 切片分页
   const start = (curPage - 1) * PAGE_SIZE;
   const pageItems = filtered.slice(start, start + PAGE_SIZE);
 
-  // 按要求：若不存在则缩略区什么也不显示
   grid.innerHTML = "";
   if(pageItems.length === 0){
-    // 不显示任何 tile；如果你想更友好可取消注释：
      grid.innerHTML = `<div class="empty">未找到匹配视频</div>`;
   } else {
     for(const v of pageItems){
       const a = document.createElement("a");
       a.className = "tile";
-const params = new URLSearchParams();
-if (q) params.set("q", q);
-params.set("page", String(curPage));
-params.set("v", v.id);
+      const params = new URLSearchParams();
+      if (q) params.set("q", q);
+      params.set("page", String(curPage));
+      params.set("v", v.id);
 
-// 生成正确的 ?q=...&page=...&v=...（不会出现 ?page=2?v=xxx 这种错误）
-a.href = `?${params.toString()}`;
+      a.href = `?${params.toString()}`;
 
-// 可选但强烈推荐：拦截点击，走 pushState，不整页刷新（更利于后面的自动播放）
-a.addEventListener("click", (e) => {
-  e.preventDefault();
-  setQuery({ v: v.id });   // 只改 v，q/page 会保留
-  router();
-});
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        setQuery({ v: v.id });
+        router();
+      });
 
-
-
-      // 用 video 的首帧做缩略（#t=1.5 防止黑屏；preload=metadata 降低流量）
-      // 如果你有独立封面图，也可以改成 <img src="...">
+      // 这里引用初始化阶段生成的专属随机 t (8~50)
       a.innerHTML = `
-        <video class="thumb" muted playsinline preload="metadata" src="${v.url}#t=8"></video>
+        <video class="thumb" muted playsinline preload="metadata" src="${v.url}#t=${v.thumbTime}"></video>
         <div class="tileMeta">
           <div>
-            <div class="tileTitle">${v.subtitle}</div>
-           <div class="tileSub"></div>
+            <div class="tileTitle" title="${v.subtitle}">${v.subtitle}</div>
+            <div class="tileSub"></div>
           </div>
         </div>
       `;
@@ -561,8 +578,11 @@ a.addEventListener("click", (e) => {
   prevBtn.disabled = (curPage <= 1);
   nextBtn.disabled = (curPage >= totalPages);
   pageInfo.textContent = `第 ${curPage} / ${totalPages} 页`;
+  
+  // 更新跳转组件的属性和默认值
+  jumpInput.max = totalPages;
+  jumpInput.value = curPage;
 
-  // 如果 URL page 不合法，纠正一下
   if(curPage !== page){
     setQuery({ page: curPage });
   }
@@ -573,15 +593,12 @@ function loadGiscusForVideo(videoId){
     commentsBox.textContent = "留言功能未启用。";
     return;
   }
-
-  // 清空旧的 giscus
   commentsBox.innerHTML = "";
   const existing = document.querySelector("script[data-giscus]");
   if(existing) existing.remove();
   const frame = document.querySelector(".giscus-frame");
   if(frame) frame.remove();
 
-  // giscus 使用 URL/路径映射讨论串，这里让每个视频各自一串
   const script = document.createElement("script");
   script.setAttribute("data-giscus", "true");
   script.src = "https://giscus.app/client.js";
@@ -593,7 +610,6 @@ function loadGiscusForVideo(videoId){
   script.setAttribute("data-category", GISCUS_CONFIG.category);
   script.setAttribute("data-category-id", GISCUS_CONFIG.categoryId);
 
-  // 关键：每个视频一个 discussion
   script.setAttribute("data-mapping", "specific");
   script.setAttribute("data-term", `video:${videoId}`);
 
@@ -627,10 +643,8 @@ function renderVideo(){
 
   playerSource.src = v.url;
   player.load();
-const p = player.play();
-if (p && typeof p.catch === "function") p.catch(()=>{});
-
-  // playerNote.textContent = `视频源：${v.url}`;
+  const p = player.play();
+  if (p && typeof p.catch === "function") p.catch(()=>{});
 
   loadGiscusForVideo(v.id);
 }
@@ -643,7 +657,6 @@ function router(){
 
 /** ====== 事件绑定 ====== */
 searchInput.addEventListener("input", () => {
-  // 输入即搜索：把 q 写入 URL，同时重置页码为 1
   setQuery({ q: searchInput.value.trim(), page: 1, v: null });
   router();
 });
@@ -656,20 +669,33 @@ clearBtn.addEventListener("click", () => {
 
 prevBtn.addEventListener("click", () => {
   const pageRaw = Number(qs().get("page"));
-const page = Number.isFinite(pageRaw) ? pageRaw : 1;
+  const page = Number.isFinite(pageRaw) ? pageRaw : 1;
   setQuery({ page: Math.max(1, page - 1), v: null });
   router();
 });
 
 nextBtn.addEventListener("click", () => {
   const pageRaw = Number(qs().get("page"));
-const page = Number.isFinite(pageRaw) ? pageRaw : 1;
+  const page = Number.isFinite(pageRaw) ? pageRaw : 1;
   setQuery({ page: page + 1, v: null });
   router();
 });
 
+// 跳转指定页功能事件
+jumpBtn.addEventListener("click", () => {
+  const targetPage = parseInt(jumpInput.value, 10);
+  if (!isNaN(targetPage)) {
+    setQuery({ page: targetPage, v: null });
+    router();
+  }
+});
+jumpInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    jumpBtn.click();
+  }
+});
+
 backBtn.addEventListener("click", () => {
-  // 返回主页并保留搜索/页码也行；这里直接回主页
   setQuery({ v: null });
   router();
 });
