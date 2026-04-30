@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>视频播放</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #0b1220;
+      color: #e5e7eb;
+      font-family: system-ui, Arial;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 900px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 16px;
+      font-size: 20px;
+    }
+
+    video {
+      width: 100%;
+      border-radius: 12px;
+      background: black;
+      box-shadow: 0 10px 30px rgba(0,0,0,.4);
+    }
+
+    .desc {
+      margin-top: 12px;
+      color: #9ca3af;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1 id="title">视频标题</h1>
+
+    <video controls playsinline preload="metadata">
+      <source id="videoSrc" src="" type="video/mp4">
+      你的浏览器不支持 video 标签
+    </video>
+
+    <div class="desc" id="desc">这里是视频简介</div>
+  </div>
+
+  <script>
+    /** ====== 只需要改这里 ====== */
+    const VIDEO_BASE_URL = "https://media.haiyidawangzifan.xyz";
+
+    const VIDEO_FILE = "asic_pj_jjy_video"; // ← 改成你的文件名（不带 .mp4）
+
+    const VIDEO_TITLE = "ASIC期末pj演示视频";
+    const VIDEO_DESC = "23307130193姜佳宇";
+
+    /** ====== 自动拼接 ====== */
+    const videoUrl = `${VIDEO_BASE_URL}/${VIDEO_FILE}.mp4`;
+
+    document.getElementById("videoSrc").src = videoUrl;
+    document.getElementById("title").textContent = VIDEO_TITLE;
+    document.getElementById("desc").textContent = VIDEO_DESC;
+  </script>
+
+</body>
+</html>
