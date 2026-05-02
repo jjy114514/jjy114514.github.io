@@ -9,47 +9,32 @@
   body {
     margin: 0;
     background: #0b1220;
-    color: #e5e7eb;
-    font-family: system-ui, Arial;
-
-    /* ✅ 关键：用flex纵向布局 */
     display: flex;
-    flex-direction: column;
-
+    justify-content: center;
+    align-items: center;
     height: 100vh;
-    overflow: hidden; /* ❗禁止滚动 */
+    overflow: hidden;
   }
 
-  h1 {
-    margin: 10px 0;
-    text-align: center;
-    font-size: 18px;
-    flex-shrink: 0;
-  }
-
-  .desc {
-    text-align: center;
-    font-size: 13px;
-    color: #9ca3af;
-    margin: 6px 0 10px;
-    flex-shrink: 0;
-  }
-
-  .video-wrapper {
-    /* ✅ 核心：吃掉剩余空间 */
-    flex: 1;
+  /* ✅ 核心容器：永远不会超出屏幕 */
+  .player-container {
+    width: 100vw;
+    height: 100vh;
 
     display: flex;
     justify-content: center;
     align-items: center;
   }
 
+  /* ✅ 限制视频最大尺寸 */
   video {
     max-width: 100%;
     max-height: 100%;
 
-    object-fit: contain; /* 保证完整显示 */
-    border-radius: 12px;
+    width: auto;
+    height: auto;
+
+    object-fit: contain;
     background: black;
   }
 </style>
@@ -57,29 +42,11 @@
 
 <body>
 
-<h1 id="title">视频标题</h1>
-
-<div class="video-wrapper">
+<div class="player-container">
   <video controls playsinline preload="metadata">
-    <source id="videoSrc" src="" type="video/mp4">
+    <source src="https://media.haiyidawangzifan.xyz/asic_pj_jjy_video.mp4" type="video/mp4">
   </video>
 </div>
-
-<div class="desc" id="desc">这里是视频简介</div>
-
-<script>
-const VIDEO_BASE_URL = "https://media.haiyidawangzifan.xyz";
-const VIDEO_FILE = "asic_pj_jjy_video";
-
-const VIDEO_TITLE = "姜佳宇课程作业演示视频";
-const VIDEO_DESC = "姜佳宇课程作业演示视频";
-
-const videoUrl = `${VIDEO_BASE_URL}/${VIDEO_FILE}.mp4`;
-
-document.getElementById("videoSrc").src = videoUrl;
-document.getElementById("title").textContent = VIDEO_TITLE;
-document.getElementById("desc").textContent = VIDEO_DESC;
-</script>
 
 </body>
 </html>
