@@ -28,8 +28,11 @@
       font-size: 20px;
     }
 
+    /* ✅ 核心修改在这里 */
     video {
       width: 100%;
+      height: 80vh;              /* 限制最大高度，适配PC屏幕 */
+      object-fit: contain;       /* ⭐ 保证完整显示，不裁剪 */
       border-radius: 12px;
       background: black;
       box-shadow: 0 10px 30px rgba(0,0,0,.4);
@@ -57,15 +60,13 @@
   </div>
 
   <script>
-    /** ====== 只需要改这里 ====== */
     const VIDEO_BASE_URL = "https://media.haiyidawangzifan.xyz";
 
-    const VIDEO_FILE = "asic_pj_jjy_video"; // ← 改成你的文件名（不带 .mp4）
+    const VIDEO_FILE = "asic_pj_jjy_video";
 
     const VIDEO_TITLE = "姜佳宇课程作业演示视频";
     const VIDEO_DESC = "姜佳宇课程作业演示视频";
 
-    /** ====== 自动拼接 ====== */
     const videoUrl = `${VIDEO_BASE_URL}/${VIDEO_FILE}.mp4`;
 
     document.getElementById("videoSrc").src = videoUrl;
